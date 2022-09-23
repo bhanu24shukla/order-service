@@ -6,6 +6,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.vinsguru.orderservice.dto.ProductDto;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -19,6 +20,10 @@ public class ProductClient {
 
 	public Mono<ProductDto> getProductById(final String productId) {
 		return this.webClient.get().uri("{id}", productId).retrieve().bodyToMono(ProductDto.class);
+	}
+
+	public Flux<ProductDto> getAllProducts() {
+		return this.webClient.get().uri("all").retrieve().bodyToFlux(ProductDto.class);
 	}
 
 }

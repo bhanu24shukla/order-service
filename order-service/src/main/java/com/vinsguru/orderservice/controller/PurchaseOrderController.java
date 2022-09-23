@@ -1,12 +1,16 @@
 package com.vinsguru.orderservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.vinsguru.orderservice.dto.PurchaseOrderRequestDto;
 import com.vinsguru.orderservice.dto.PurchaseOrderResponseDto;
@@ -27,8 +31,12 @@ public class PurchaseOrderController {
 	private OrderQueryService queryService;
 
 	@PostMapping
-	public Mono<PurchaseOrderResponseDto> order(@RequestBody Mono<PurchaseOrderRequestDto> requestDtoMono) {
-		return this.orderFulfillmentService.purchaseOrder(requestDtoMono);
+	public Mono<ResponseEntity<PurchaseOrderResponseDto>> order(
+			@RequestBody Mono<PurchaseOrderRequestDto> requestDtoMono) {
+		return this.orderFulfillmentService.processOrder(requestDtoMono).map(ResponseEntity::ok)
+				.onErrorReturn(WebClientResponseException.class, ResponseEntity.badRequest().build())
+				.onErrorReturn(WebClientRequestException.class,
+						ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
 	}
 
 	@GetMapping("user/{userId}")
