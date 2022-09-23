@@ -6,7 +6,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.vinsguru.orderservice.dto.TransactionRequestDto;
 import com.vinsguru.orderservice.dto.TransactionResponseDto;
+import com.vinsguru.orderservice.dto.UserDto;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -21,6 +23,10 @@ public class UserClient {
 	public Mono<TransactionResponseDto> authorizeTransaction(TransactionRequestDto transactionRequestDto) {
 		return this.webClient.post().uri("transaction").bodyValue(transactionRequestDto).retrieve()
 				.bodyToMono(TransactionResponseDto.class);
+	}
+
+	public Flux<UserDto> getAllProducts() {
+		return this.webClient.get().uri("all").retrieve().bodyToFlux(UserDto.class);
 	}
 
 }
